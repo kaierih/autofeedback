@@ -62,10 +62,11 @@ class ScoreCalculator:
         self.test_results = []
         self.weights = []
 
-    def process_result(self, result: bool, wgt: float = None):
+    def process_result(self, result: bool, wgt: float = 1.0):
         """
         Add a test result @result to the score sheet with optional wieght @wgt.
-        @wgt should be a number between 0.0 and 1.0
+        @wgt weight is relative, with default of 1.0 attributing equal amount
+        of points per test.
         """
         self.weights.append(wgt)
         self.test_results.append(result)
@@ -81,24 +82,15 @@ class ScoreCalculator:
         Returns final score as a number 0.0 <= score <= 1.0.
         """
         score = 0.0
-        wgt_sum = 0.0
-        # Calculate total amount of manually assigned weigths
-        for i in range(len(self.weights)):
-            if self.weights[i] is not None:
-                wgt_sum += self.weights[i]
+        wgt_sum = sum(self.weights)
         # Distribute remaining score difference evenly among remaining tests
-        if wgt_sum < 1.0 and self.weights.count(None) > 0:
-            auto_wgt = (1.0-wgt_sum)/self.weights.count(None)
-        for i in range(len(self.weights)):
-            if self.weights[i] is None:
-                self.weights[i] = auto_wgt
         # Calculate score
         for i in range(len(self.weights)):
-            score += self.weights[i]*self.test_results[i]
+            score += self.weights[i]*self.test_results[i]/wgt_sum
         # Constrain score to number between 0.0 and 1.0
         score = max(score, 0.0)
         score = min(score, 1.0)
-        return score
+        return round(score, 3) # Higher precision not relevant, 
 
     def pop(self, n: int):
         """
@@ -127,7 +119,7 @@ class TestClass:
         self.log = FeedbackLogger()
         self.score = ScoreCalculator()
 
-    def add_result(self, result: bool, msg: str, wgt=None):
+    def add_result(self, result: bool, msg: str, wgt=1.0):
         _, N_tests = self.score.get_ratio()
         msg_intro = f"Test {N_tests + 1}"
         self.score.process_result(result, wgt)

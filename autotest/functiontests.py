@@ -49,8 +49,8 @@ class FunctionTests(TestClass):
     def test_new_func(self, test_func, ref_func, *args, **kwargs):
         self.ref_func = ref_func
         self.test_func = test_func
-        #self.func_call_success = False
-        #self.return_type_verified = False
+        self.func_call_success = False
+        self.return_type_verified = False
         self.test_return_value(*args, **kwargs)
 
     def test_return_value(self, *args, **kwargs):
@@ -70,11 +70,11 @@ class FunctionTests(TestClass):
         except Exception as e:
             # If function could not execute, log error message and input arguments.
             msg_body = "test call "+str(self.test_func.__name__)+"("+arg_str+") exited with errors: " + str(e.args[0])
-            self.add_result(False, msg_body, wgt=self.usage_wgt/2)
+            self.add_result(False, msg_body, wgt=self.usage_wgt)
         else:
             if not self.func_call_success:
                 msg_body = "test call "+str(self.test_func.__name__)+"("+arg_str+") completed without errors."
-                self.add_result(True, msg_body, wgt=self.usage_wgt/2)
+                self.add_result(True, msg_body, wgt=self.usage_wgt)
                 self.func_call_success = True
             # Compile string of any printouts from student function
             x_print = ""
@@ -97,7 +97,7 @@ class FunctionTests(TestClass):
                     self.add_result(True,
                                     "test call %s(%s) returned a value of the correct type (%s)."%
                                     (self.test_func.__name__, arg_str, type(x).__name__),
-                                    wgt=self.usage_wgt/2)
+                                    wgt=self.usage_wgt)
 
                 test_result, val_msg = compare_values(x, y)
 
@@ -113,7 +113,7 @@ class FunctionTests(TestClass):
                     self.add_result(True,
                                     "test call %s(%s) generated a printed message."%
                                     (self.test_func.__name__, arg_str),
-                                    wgt=self.usage_wgt/2)
+                                    wgt=self.usage_wgt)
                 test_result, val_msg = compare_values(x_print, y_print)
                 func_msg = "test call %s(%s) printed %s"%(self.test_func.__name__, arg_str, val_msg)
                 self.add_result(test_result, func_msg)
