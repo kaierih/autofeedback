@@ -14,18 +14,17 @@ class VariableTests(TestClass):
 
     def __init__(self):
         super().__init__()
-        self.type_tests = []
-        self.type_wgt = 0.2 # Configurable?
+        self.type_wgt = 0.3 # Configurable?
 
     def compare(self, x, y, name: str = None, rtol=1e-2, atol=1e-8):
         same_type = compare_type(x, y)
         if not same_type:
             msg = "variable '%s' is type %s and not %s."%(name, type(x).__name__, type(y).__name__)
-            self.add_result(False, msg)
+            self.add_result(False, msg, wgt=self.type_wgt)
             self.type_tests.append(True)
         else:
             msg = "variable '%s' is the correct type (%s)."%(name, type(x).__name__)
-            self.add_result(True, msg)
+            self.add_result(True, msg, wgt=self.type_wgt)
             self.type_tests.append(True)
 
             same_value, compare_msg = compare_values(x, y, rtol=rtol, atol=atol)
