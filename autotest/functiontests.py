@@ -1,8 +1,8 @@
-from . import TestClass, compare_type, compare_values, print2str, args2str
+from . import compare_type, compare_values, print2str, args2str, VariableTests
 from unittest.mock import patch
 
 
-class FunctionTests(TestClass):
+class FunctionTests(VariableTests):
     """
     Class for use in generating feedback and score in an nbgrader task where student submission
     consists of a function declaration.

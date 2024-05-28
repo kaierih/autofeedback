@@ -8,18 +8,21 @@ class CodeCellTests(TestClass):
     Test class to check execution and output of code cell.
     """
 
-    def __init__(self, code_cell_contents: str, init_wgt=1.0):
+    def __init__(self, code_cell_contents: str, init_wgt=1.0, globals=None, locals=None):
         super().__init__()
         self.source = code_cell_contents
+        self.globals = globals
+        self.locals = locals
         self.test_exec(wgt=init_wgt)
 
     def test_exec(self, wgt=1.0):
         _, N_tests = self.score.get_ratio()
         msg_intro = f"Test {N_tests + 1}"
         self.student_print = ""
+        scope_name = __name__ if self.globals is None else self.globals["__name__"]
         try:
-            with patch(f'{__name__}.print') as mock_print:
-                exec(self.source)
+            with patch(f'{scope_name}.print') as mock_print:
+                exec(self.source, self.globals, self.locals)
             for call in mock_print.mock_calls:
                 self.student_print += print2str(*call.args, **call.kwargs)
         except Exception as e:
@@ -36,7 +39,7 @@ class CodeCellTests(TestClass):
         content_match = re.search(desired_output, self.source)
 
         if content_match is not None and ignore_code_match == False:
-            feedback = "code cell appears to contain solution, indicating output is not the result of calculations using python"
+            feedback = f"code cell appears to contain an explicit declaration of {sample if sample is not None else 'solution'}, indicating output is not the result of calculations using python"
         else:
             output_match = re.search(desired_output, self.student_print)
             if output_match is not None:
