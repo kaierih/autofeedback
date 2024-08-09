@@ -2,16 +2,14 @@ import nbformat
 
 import os
 from base64 import b64decode
-from nbgrader.preprocessors import Execute, ClearHiddenTests
+from nbgrader.preprocessors import Execute, ClearHiddenTests, GetGrades
 from nbgrader.utils import is_grade, determine_grade
 from nbconvert import HTMLExporter
 from IPython.display import Markdown, display
-from .preprocessors import InsertHiddenTests, PreservePlots
 
-#from nbconvert.preprocessors import ClearMetadataPreprocessor
+from nbconvert.preprocessors import CSSHTMLHeaderPreprocessor, ClearMetadataPreprocessor
 # Config Options
 output_dir = "test_results"
-test_tag = "autofeedback"
 
 # Functions:
 # ----------
@@ -33,17 +31,15 @@ def run_tests(filename, output_dir="test_results"):
         nb = nbformat.read(f, as_version=4)
 
     # 2. Copy hidden tests from metadata to cell body
-    InsertHiddenTests().preprocess(nb, None)
-    #for cell_data in nb['cells']:
-    #    if cell_data['cell_type'] == 'code':
-    #        if test_tag in cell_data['metadata']:
-    #            test_string = b64decode(cell_data['metadata'][test_tag]['test_code']).decode('utf-8')
-    #            cell_data['source'] += "\n### BEGIN HIDDEN TESTS\n"+test_string+"\n### END HIDDEN TESTS"
-    # 2.5 Preserve Plots
-    PreservePlots().preprocess(nb, None)
+    for cell_data in nb['cells']:
+        if cell_data['cell_type'] == 'code':
+            if 'distributed_autograding' in cell_data['metadata']:
+                test_string = b64decode(cell_data['metadata']['distributed_autograding']['test_code']).decode('utf-8')
+                cell_data['source'] += "\n### BEGIN HIDDEN TESTS\n"+test_string+"\n### END HIDDEN TESTS"
 
     # 3. Execute entire notebook sequentially with hidden tests
-    Execute(timeout=30, kernel_name='python3').preprocess(nb)
+    resources = {}
+    Execute(timeout=30, kernel_name='python3').preprocess(nb, resources)
 
     # 4. Get student score
     points = 0
@@ -55,15 +51,26 @@ def run_tests(filename, output_dir="test_results"):
             cell_points, cell_max_points = determine_grade(cell)
             points += cell_points
             max_points += cell_max_points
-
+            cell.metadata.nbgrader['score'] = cell_points
+            cell.metadata.nbgrader['points'] = cell_max_points
+    resources['nbgrader']={'score': points, 'max_score': max_points, "late_penalty": 0.0}
+    
     # 5. Remove hidden tests
-    ClearHiddenTests().preprocess(nb, None)
+    ClearHiddenTests().preprocess(nb, resources)
 
-    # ClearMetadataPreprocessor().preprocess(nb_new, None)
+    ClearMetadataPreprocessor().preprocess(nb, resources)
+    #GetGrades().preprocess(nb, None)
+    CSSHTMLHeaderPreprocessor().preprocess(nb, resources)
 
     # 6. Export notebook with test outputs to html file
-    html_exporter = HTMLExporter(template_name="classic")
-    (body, resources) = html_exporter.from_notebook_node(nb)
+    template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
+    extra_static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static', 'components', 'bootstrap', 'css'))
+    print(template_path)
+    html_exporter = HTMLExporter(template_name="feedback", 
+                                 extra_template_basedirs = [template_path], 
+                                 extra_template_paths = [extra_static_path])
+    
+    (body, resources) = html_exporter.from_notebook_node(nb, resources)
 
     with open(output_dir+'/'+filename.split(".")[0]+".html", mode='w', encoding='utf-8') as f:
         f.write(body)
