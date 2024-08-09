@@ -1,9 +1,9 @@
-from . import TestClass, print2str
+from . import VariableTests, print2str
 import re
 from unittest.mock import patch
 
 
-class CodeCellTests(TestClass):
+class CodeCellTests(VariableTests):
     """
     Test class to check execution and output of code cell.
     """
@@ -30,9 +30,10 @@ class CodeCellTests(TestClass):
             self.score.process_result(False, wgt)
             self.log.append(msg_intro + " failed: " + feedback)
         else:
-            feedback = "answer cell executed without errors"
-            self.score.process_result(True, wgt)
-            self.log.append(msg_intro + " passed: " + feedback)
+            if wgt != 0.0:
+                feedback = "answer cell executed without errors"
+                self.score.process_result(True, wgt)
+                self.log.append(msg_intro + " passed: " + feedback)
 
     def test_output(self, desired_output: str, sample=None, wgt=1.0, ignore_code_match=True):
         passed = False
@@ -65,3 +66,8 @@ class CodeCellTests(TestClass):
         self.log.append(f"Making adjustment to code: {replacement}")
         # add code to remove logged score/message
         # add check to see if code executed successfully
+
+    def insert_top(self, new_code):
+        self.source = new_code + "\n" + self.source
+        self.test_exec(wgt=0.0)
+        self.log.append(f"Adding new code: {new_code}")

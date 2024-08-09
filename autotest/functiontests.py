@@ -1,4 +1,4 @@
-from . import compare_type, compare_values, print2str, args2str, VariableTests
+from . import compare_type, compare_values, print2str, args2str, VariableTests, compare_printout
 from unittest.mock import patch
 
 
@@ -65,7 +65,7 @@ class FunctionTests(VariableTests):
 
         try:
             # Attempt to call student submitted function with mocked print
-            with patch(f'{__name__}.print') as mock_print:
+            with patch('__main__.print') as mock_print:
                 x = self.test_func(*args, **kwargs)
         except Exception as e:
             # If function could not execute, log error message and input arguments.
@@ -82,7 +82,7 @@ class FunctionTests(VariableTests):
                 x_print += print2str(*call.args, **call.kwargs)
 
             # Compile string of any printouts from solution function
-            with patch(f'{__name__}.print') as mock_print:
+            with patch('__main__.print') as mock_print:
                 y = self.ref_func(*args, **kwargs)
             y_print = ""
 
@@ -114,8 +114,8 @@ class FunctionTests(VariableTests):
                                     "test call %s(%s) generated a printed message."%
                                     (self.test_func.__name__, arg_str),
                                     wgt=self.usage_wgt)
-                test_result, val_msg = compare_values(x_print, y_print)
-                func_msg = "test call %s(%s) printed %s"%(self.test_func.__name__, arg_str, val_msg)
+                test_result, val_msg = compare_printout(x_print, y_print)
+                func_msg = "test call %s(%s) printout pattern matching results (positive matches highlighted): <div style='margin-left: 15px;'>%s</div>"%(self.test_func.__name__, arg_str, val_msg)
                 self.add_result(test_result, func_msg)
             elif x is None and len(x_print) > 0:
                 # Alert student of printed message instead of returned value

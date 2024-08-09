@@ -90,7 +90,7 @@ class ScoreCalculator:
         # Constrain score to number between 0.0 and 1.0
         score = max(score, 0.0)
         score = min(score, 1.0)
-        return round(score, 3) # Higher precision not relevant, 
+        return score # Higher precision not relevant, 
 
     def pop(self, n: int):
         """
@@ -135,12 +135,13 @@ class TestClass:
             self.log.append("All tests passed!")
             level = "success"
         elif score == 0.0:
-            self.log.clear(start=1)
-            self.log.insert(0, "No tests passed, displaying only first test result: ")
+            if len(self.score.test_results) > 1:
+                self.log.clear(start=1)
+                self.log.insert(0, "No tests passed, displaying only first test result: ")
             level = "danger"
         else:
             passed, total = self.score.get_ratio()
             self.log.insert(0, f"{passed} of {total} tests passed:")
             level = "warning"
         self.log.display(level)
-        return round(score, 3)
+        return score

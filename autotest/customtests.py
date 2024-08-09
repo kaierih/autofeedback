@@ -23,6 +23,6 @@ class CustomTests(TestClass):
 
     def test(self, result: bool, success: str, fail: str, wgt=1.0):
         if result:
-            self.add_result(result, success)
+            self.add_result(result, success, wgt)
         else:
-            self.add_result(result, fail)
+            self.add_result(result, fail, wgt)

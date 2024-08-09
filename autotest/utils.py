@@ -53,13 +53,13 @@ def get_deviation(x, y, rtol=1e-2, atol=1e-8):
     Function to return largest absolute error and largest relative error
     when comparing two array-like inputs 'x' and 'y'.
     """
+    
     err = np.abs(np.subtract(x, y))
     err_loc = np.where(err > atol + np.multiply(rtol, np.abs(y)))
     err = np.take(err, err_loc).flatten()
 
     with np.errstate(divide='ignore'):
         rel_err = err/np.take(np.abs(y), err_loc).flatten()
-
     return np.max(err), np.max(rel_err)
 
 
@@ -71,7 +71,15 @@ def compare_values(x, y, rtol=1e-2, atol=1e-8):
     """
 
     passed = False
-    if isinstance(y, (int, float)):
+    if isinstance(y, bool):
+        try:
+            assert x == y, f"value is {x}, expected {y}."
+        except Exception as e:
+            msg = e.args[0]
+        else:
+            passed = True
+            msg = "value {x} is correct."
+    elif isinstance(y, (int, float)):
         try:
             passed = np.allclose(x, y, rtol=rtol, atol=atol)
         except Exception as e:
@@ -114,3 +122,32 @@ def compare_values(x, y, rtol=1e-2, atol=1e-8):
             passed = True
             msg = "value is correct."
     return passed, msg
+
+
+def compare_printout(x, y):
+    """
+    Function to compare strings generated with print2str. 
+    Runs comparison line by line
+    """
+    def highlight_bold(string: str, span: tuple):
+        return string[:span[0]]+"<b>"+string[span[0]:span[-1]]+"</b>"+string[span[-1]:]
+
+    x_msg = "<br>".join(x.splitlines())
+    y_lines = y.splitlines()
+    passed = True
+    y_lines = y.split("\n")
+    if len(y_lines[-1]) == 0:
+        y_lines.pop(-1)
+
+    missing = []
+    passed = True
+    for y_line in y_lines:
+        line_match = re.search(y_line.strip(), x_msg)
+        if line_match is not None:
+            x_msg = highlight_bold(x_msg, line_match.span())
+        else:
+            missing.append(y_line)
+    if len(missing) > 0:
+        passed = False
+        x_msg = x_msg + "<br>List of missing keywords: " + str(missing)
+    return passed, x_msg
