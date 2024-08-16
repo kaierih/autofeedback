@@ -34,18 +34,14 @@ def run_tests(filename, output_dir="test_results"):
 
     # 2. Copy hidden tests from metadata to cell body
     InsertHiddenTests().preprocess(nb, None)
-    #for cell_data in nb['cells']:
-    #    if cell_data['cell_type'] == 'code':
-    #        if test_tag in cell_data['metadata']:
-    #            test_string = b64decode(cell_data['metadata'][test_tag]['test_code']).decode('utf-8')
-    #            cell_data['source'] += "\n### BEGIN HIDDEN TESTS\n"+test_string+"\n### END HIDDEN TESTS"
-    # 2.5 Preserve Plots
+
+    # 3 Preserve Plots
     PreservePlots().preprocess(nb, None)
 
-    # 3. Execute entire notebook sequentially with hidden tests
-    Execute(timeout=30, kernel_name='python3').preprocess(nb)
+    # 4. Execute entire notebook sequentially with hidden tests
+    Execute(timeout=30, kernel_name='python3').preprocess(nb, {'metadata': {'path': './'}})
 
-    # 4. Get student score
+    # 5. Get student score
     points = 0
     max_points = 0
     for cell in nb.cells:
@@ -56,12 +52,12 @@ def run_tests(filename, output_dir="test_results"):
             points += cell_points
             max_points += cell_max_points
 
-    # 5. Remove hidden tests
+    # 6. Remove hidden tests
     ClearHiddenTests().preprocess(nb, None)
 
     # ClearMetadataPreprocessor().preprocess(nb_new, None)
 
-    # 6. Export notebook with test outputs to html file
+    # 7. Export notebook with test outputs to html file
     html_exporter = HTMLExporter(template_name="classic")
     (body, resources) = html_exporter.from_notebook_node(nb)
 
@@ -81,7 +77,7 @@ def autograde_notebooks(notebook_list):
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        
+
     for notebook in notebook_list:
         notebook_score, notebook_max = run_tests(notebook)
         report_file = notebook.split(".")[0]+".html"
@@ -100,3 +96,5 @@ def autograde_notebooks(notebook_list):
         (str(total_score),
          str(max_score))
     ))
+
+# Debugger warnings are disabled by adding -Xfrozen_modules=off to the kernel.json file in /opt/conda/share/jupyter/kernels/python3.

@@ -56,7 +56,7 @@ class PreservePlots(NbGraderPreprocessor):
 
         return cell, resources
 
-class RemoveGCF(NBGraderPreprocessor):
+class RemoveGCF(NbGraderPreprocessor):
     """A preprocessor for making sure a plot object created by a plotting task is available in variable 'fig'."""
     def preprocess_cell(self,
                         cell: NotebookNode,
