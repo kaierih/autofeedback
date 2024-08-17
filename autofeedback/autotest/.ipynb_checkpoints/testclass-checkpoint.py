@@ -132,7 +132,7 @@ class TestClass:
         score = self.score.get_score()
         if round(score, 3) >= 1.0:
             self.log.clear()
-            self.log.append("All tests passed!")
+            self.log.append("All tests passed. ")
             level = "success"
         elif score == 0.0:
             if len(self.score.test_results) > 1:

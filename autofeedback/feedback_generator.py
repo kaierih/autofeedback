@@ -6,7 +6,7 @@ from nbgrader.preprocessors import Execute, ClearHiddenTests
 from nbgrader.utils import is_grade, determine_grade
 from nbconvert import HTMLExporter
 from IPython.display import Markdown, display
-from .preprocessors import InsertHiddenTests, PreservePlots
+from .preprocessors import InsertHiddenTests, PreservePlots, RemoveGCF
 
 #from nbconvert.preprocessors import ClearMetadataPreprocessor
 # Config Options
@@ -55,6 +55,9 @@ def run_tests(filename, output_dir="test_results"):
     # 6. Remove hidden tests
     ClearHiddenTests().preprocess(nb, None)
 
+    # Undo Preserve Plots
+    RemoveGCF().preprocess(nb, None)
+    
     # ClearMetadataPreprocessor().preprocess(nb_new, None)
 
     # 7. Export notebook with test outputs to html file
