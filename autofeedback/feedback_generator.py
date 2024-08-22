@@ -34,6 +34,8 @@ def run_tests(filename, output_dir="test_results"):
 
     # 2. Copy hidden tests from metadata to cell body
     InsertHiddenTests().preprocess(nb, None)
+    # Consider addin a "uniqueness-check" to nbgrader cell id. 
+    # Purpose: avoid unwanted behavior when students copy test cells.
 
     # 3 Preserve Plots
     PreservePlots().preprocess(nb, None)
@@ -49,7 +51,7 @@ def run_tests(filename, output_dir="test_results"):
         #    max_points += get_max_points(cell)
         #    points += get_points(cell)
             cell_points, cell_max_points = determine_grade(cell)
-            points += cell_points
+            points += 0 if cell_points is None else cell_points
             max_points += cell_max_points
 
     # 6. Remove hidden tests
