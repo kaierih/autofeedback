@@ -55,7 +55,7 @@ def get_deviation(x, y, rtol=1e-2, atol=1e-8):
     """
     
     err = np.abs(np.subtract(x, y))
-    err_loc = np.where(err > atol + np.multiply(rtol, np.abs(y)))
+    err_loc = np.atleast_1d(err > atol + np.multiply(rtol, np.abs(y))).nonzero()
     err = np.take(err, err_loc).flatten()
 
     with np.errstate(divide='ignore'):
