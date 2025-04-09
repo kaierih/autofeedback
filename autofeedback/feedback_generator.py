@@ -1,7 +1,7 @@
 import nbformat
 
 import os
-from base64 import b64decode
+import nbgrader
 from nbgrader.preprocessors import Execute, ClearHiddenTests
 from nbgrader.utils import is_grade, determine_grade
 from nbconvert import HTMLExporter
@@ -32,40 +32,63 @@ def run_tests(filename, output_dir="test_results"):
     with open(filename, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
 
+    resources = {'metadata': {'path': './'}}
+
     # 2. Copy hidden tests from metadata to cell body
-    InsertHiddenTests().preprocess(nb, None)
-    # Consider addin a "uniqueness-check" to nbgrader cell id. 
+    InsertHiddenTests().preprocess(nb, resources)
+    # Consider adding a "uniqueness-check" to nbgrader cell id. 
     # Purpose: avoid unwanted behavior when students copy test cells.
 
     # 3 Preserve Plots
-    PreservePlots().preprocess(nb, None)
+    PreservePlots().preprocess(nb, resources)
 
     # 4. Execute entire notebook sequentially with hidden tests
-    Execute(timeout=30, kernel_name='python3').preprocess(nb, {'metadata': {'path': './'}})
+    Execute(timeout=30, kernel_name='python3').preprocess(nb, resources)
 
     # 5. Get student score
     points = 0
     max_points = 0
     for cell in nb.cells:
         if is_grade(cell):
-        #    max_points += get_max_points(cell)
-        #    points += get_points(cell)
             cell_points, cell_max_points = determine_grade(cell)
             points += 0 if cell_points is None else cell_points
             max_points += cell_max_points
+            cell['metadata']['nbgrader']['score'] = cell_points
+
+    resources['nbgrader'] = {'score': points,
+                             'max_score': max_points,
+                             'late_penalty': 0.0}
 
     # 6. Remove hidden tests
-    ClearHiddenTests().preprocess(nb, None)
+    ClearHiddenTests().preprocess(nb, resources)
 
     # Undo Preserve Plots
-    RemoveGCF().preprocess(nb, None)
-    
+    RemoveGCF().preprocess(nb, resources)
+
     # ClearMetadataPreprocessor().preprocess(nb_new, None)
 
     # 7. Export notebook with test outputs to html file
-    html_exporter = HTMLExporter(template_name="classic")
-    (body, resources) = html_exporter.from_notebook_node(nb)
+    # Setup
+    template_name = "feedback"
+    nbgrader_path = os.path.dirname(nbgrader.__file__)
+    template_dir = os.path.abspath(os.path.join(nbgrader_path, 'server_extensions', 'formgrader', 'templates'))
+    extra_static_path = os.path.abspath(os.path.join(nbgrader_path, 'server_extensions', 'formgrader', 'static', 'components', 'bootstrap', 'css'))
+    #template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "templates"))
+    #extra_static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'css'))
+    
+    # Create exporter
+    html_exporter = HTMLExporter(
+        template_name=template_name,
+        extra_template_basedirs=[template_dir],
+        extra_template_paths=[extra_static_path],
+    )
+    
+    html_exporter.enable_mathjax = True
+    #html_exporter = HTMLExporter(template_name="classic"),
+    #(body, resources) = html_exporter.from_notebook_node(nb)
 
+    (body, resources) = html_exporter.from_notebook_node(nb, resources)
+    
     with open(output_dir+'/'+filename.split(".")[0]+".html", mode='w', encoding='utf-8') as f:
         f.write(body)
     return points, max_points
