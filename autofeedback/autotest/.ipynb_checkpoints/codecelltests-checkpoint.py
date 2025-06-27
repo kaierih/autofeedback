@@ -61,8 +61,8 @@ class CodeCellTests(VariableTests):
     def replace(self, pattern: str, replacement: str):
         self.source = re.sub(pattern, replacement, self.source)
         self.test_exec(wgt=0.0)
-        self.score.pop(-1)
-        self.log.clear(start=-1)
+        #self.score.pop(-1)
+        #self.log.clear(start=-1)
         self.log.append(f"Making adjustment to code: {replacement}")
         # add code to remove logged score/message
         # add check to see if code executed successfully
