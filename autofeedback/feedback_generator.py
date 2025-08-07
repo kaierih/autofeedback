@@ -100,16 +100,17 @@ def autograde_notebooks(notebook_list):
     nbgrader, with the addition of hidden tests being copied to metadata
     for each grade cell.
     """
-    student_input = input("Enter problem number to grade, or type 'all' to grade the entire assignment.")
+    student_input = input("Enter problem number to grade, or type 'all' to grade the entire assignment:")
 
     if student_input.isnumeric() and 1 <= int(student_input) <= len(notebook_list) + 1:
         notebooks_to_grade = [notebook_list[int(student_input) - 1]]
-        print(f"Grading problem {notebooks_to_grade[0]}.")
+        print(f"Grading problem {notebooks_to_grade[0].split(".")[0]}...")
     elif student_input.lower().strip() == 'all':
         notebooks_to_grade = notebook_list
-        pring(f"Grading all problems in assignment.")
+        print(f"Grading all problems in assignment...")
     else:
-        print(f"No valid input detected. Nothing to do.")
+        notebooks_to_grade = []
+        print(f"No valid input detected. Nothing to do!")
 
 
     total_score = 0
@@ -131,10 +132,12 @@ def autograde_notebooks(notebook_list):
         ))
         total_score += notebook_score
         max_score += notebook_max
-    display(Markdown(
-        """Finished grading task(s)! Final score: %s/%s.""" %
-        (str(total_score),
-         str(max_score))
-    ))
+    if len(notebooks_to_grade)>1:
+        display(Markdown(
+            """Finished grading all tasks! Final score: %s/%s.""" %
+            (str(total_score),
+             str(max_score))
+        ))
+
 
 # Debugger warnings are disabled by adding -Xfrozen_modules=off to the kernel.json file in /opt/conda/share/jupyter/kernels/python3.
