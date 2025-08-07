@@ -103,9 +103,7 @@ def autograde_notebooks(notebook_list):
     student_input = input("Enter problem number to grade, or type 'all' to grade the entire assignment.")
 
     if student_input.isnumeric() and 1 <= int(student_input) <= len(notebook_list) + 1:
-
-
-        notebooks_to_grade = notebook_list[int(student_input) - 1]
+        notebooks_to_grade = [notebook_list[int(student_input) - 1]]
         print(f"Grading problem {notebooks_to_grade[0]}.")
     elif student_input.lower().strip() == 'all':
         notebooks_to_grade = notebook_list
@@ -120,7 +118,7 @@ def autograde_notebooks(notebook_list):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for notebook in notebook_list:
+    for notebook in notebooks_to_grade:
         notebook_score, notebook_max = run_tests(notebook)
         report_file = notebook.split(".")[0]+".html"
         display(Markdown(
