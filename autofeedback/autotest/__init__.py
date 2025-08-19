@@ -5,6 +5,7 @@ from .customtests import CustomTests
 from .variabletests import VariableTests
 from .codecelltests import CodeCellTests
 from .functiontests import FunctionTests
+from .plotchecker import PlotChecker
 
 
 __all__ = ["print2str",
@@ -19,4 +20,5 @@ __all__ = ["print2str",
            "CustomTests",
            "VariableTests",
            "CodeCellTests",
-           "FunctionTests"]
+           "FunctionTests",
+           "PlotChecker"]
