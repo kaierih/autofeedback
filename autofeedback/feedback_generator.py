@@ -104,7 +104,7 @@ def autograde_notebooks(notebook_list):
 
     if student_input.isnumeric() and 1 <= int(student_input) <= len(notebook_list) + 1:
         notebooks_to_grade = [notebook_list[int(student_input) - 1]]
-        print(f"Grading problem {notebooks_to_grade[0].split(".")[0]}...")
+        print(f"Grading problem {notebooks_to_grade[0].split('.')[0]}...")
     elif student_input.lower().strip() == 'all':
         notebooks_to_grade = notebook_list
         print(f"Grading all problems in assignment...")
