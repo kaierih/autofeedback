@@ -65,7 +65,7 @@ class PlotChecker(TestClass):
             return
 
         line = self.ca.lines[line_index]
-        result, deviation = check_plot_curve(line, func, atol=atol, rtol=rtol, wgt=1.0)
+        result, deviation = check_plot_curve(line, func, atol=atol, rtol=rtol)
         
         if result:
             msg = f"Line {line_index} matches the expected function values."
