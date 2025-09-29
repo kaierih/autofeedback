@@ -51,7 +51,7 @@ class PlotChecker(TestClass):
             return True
 
 
-    def test_function(self, func: callable, line_index=-1, atol=1e-6, rtol=1e-3):
+    def test_function(self, func: callable, line_index=-1, atol=1e-6, rtol=1e-3, wgt=1.0):
         """
         Test if the y-data of the specified line matches the function values.
         
@@ -70,7 +70,7 @@ class PlotChecker(TestClass):
         if result:
             msg = f"Line {line_index} matches the expected function values."
         else:
-            msg = f"Line {line_index} does not match the expected function values. Deviation: {deviation}"
+            msg = f"Line {line_index} does not match the expected function values. Deviation: {deviation:.3f}"
         
         self.add_result(result, msg, wgt=wgt)
 
