@@ -25,7 +25,6 @@ class PlotChecker(TestClass):
             self.ca = None
         else:
             self.ca = self.fig.axes[-1]
-        self.ca = self.fig.axes[-1]
 
 
 
