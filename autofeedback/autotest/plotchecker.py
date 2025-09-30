@@ -18,6 +18,7 @@ def check_plot_curve(line, func, atol=1e-6, rtol=1e-3):
 
 class PlotChecker(TestClass):
     def __init__(self, fig):
+        super().__init__()
         self.fig = fig
         if len(self.fig.axes) < 1:
             self.add_result(False, "No plot detected.", wgt=1.0)
@@ -25,7 +26,7 @@ class PlotChecker(TestClass):
         else:
             self.ca = self.fig.axes[-1]
         self.ca = self.fig.axes[-1]
-        super().__init__()
+
 
 
     def check_num_lines(self, expected_num_lines: int, wgt=1.0):
