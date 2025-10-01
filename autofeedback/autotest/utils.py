@@ -43,6 +43,8 @@ def compare_type(x, y):
             passed = True
         elif isinstance(x, (int, float)) and isinstance(y, (int, float)):
             passed = True
+        elif isinstance(x, (bool, np.bool)) and isinstance(y, (bool, np.bool)):
+            passed = True
         else:
             passed = False
     return passed
