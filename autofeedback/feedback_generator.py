@@ -43,7 +43,7 @@ def run_tests(filename, output_dir="test_results"):
     PreservePlots().preprocess(nb, resources)
 
     # 4. Execute entire notebook sequentially with hidden tests
-    Execute(timeout=30, kernel_name='python3').preprocess(nb, resources)
+    Execute(timeout=30, kernel_name='python3', extra_arguments=['--IPKernelApp.log_level=ERROR']).preprocess(nb, resources)
 
     # 5. Get student score
     points = 0
